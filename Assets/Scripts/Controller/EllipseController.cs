@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CircleController : MonoBehaviour
+public class EllipseController : MonoBehaviour
 {
    private Transform shapeHolder;
    [SerializeField] private GameObject prefab = default;
    [SerializeField] private Vector3 rotationCenter = default;
-   [SerializeField] private float radius = 2f;
+   [SerializeField] private float width = 2f;
+   [SerializeField] private float height = 5f;
    [SerializeField] private int numberOfPoints = 6;
+   [SerializeField] private Vector3 rotationSpeed = new Vector3(1,1,1);
 
-
-   private float smooth = 5.0f;
-   private float tiltAngle = 60.0f;
+   private Vector3 rotationAngle = default;
 
    private void Awake()
    {
@@ -21,32 +21,21 @@ public class CircleController : MonoBehaviour
    // Start is called before the first frame update
    void Start()
    {
-      StartCoroutine(UpdateSpheres());
-   }
-   // Update is called once per frame
-   void Update()
-   {
-
+      StartCoroutine(UpdateShapes());
    }
 
-
-   private IEnumerator UpdateSpheres()
+   private IEnumerator UpdateShapes()
    {
       while (true)
       {
-         yield return new WaitForSeconds(0.1f);
+         yield return new WaitForSeconds(0.01f);
 
          // Retrieve circle points
-         List<Vector3> circlePoints = GetCirclePoints();
-
-         // Smoothly tilts a transform towards a target rotation.
-         float tiltAroundZ = Input.GetAxis("Horizontal") * tiltAngle;
-         float tiltAroundX = Input.GetAxis("Vertical") * tiltAngle;
+         List<Vector3> circlePoints = GetEllipsePoints();
 
 
          // Rotate the cube by converting the angles into a quaternion.
-         Quaternion target = Quaternion.Euler(tiltAroundX, 0, tiltAroundZ);
-
+         Quaternion target = Quaternion.Euler(rotationAngle);
 
          // Remove previously instantiated spheres
          foreach (Transform child in shapeHolder) Destroy(child.gameObject);
@@ -54,10 +43,17 @@ public class CircleController : MonoBehaviour
          // Instantiate new spheres
          foreach (Vector3 circlePoint in circlePoints)
             Instantiate(prefab, circlePoint, target, shapeHolder);
+
+         rotationAngle = new Vector3( 
+            (rotationAngle.x + rotationSpeed.x*0.1f)%360,
+            (rotationAngle.y + rotationSpeed.y*0.1f)%360,
+            (rotationAngle.z + rotationSpeed.z*0.1f)%360 
+            );
+
       }
    }
 
-   private List<Vector3> GetCirclePoints()
+   private List<Vector3> GetEllipsePoints()
    {
       List<Vector3> circlePoints = new List<Vector3>();
 
@@ -65,8 +61,8 @@ public class CircleController : MonoBehaviour
       {
          float rad = 2 * Mathf.PI * i / numberOfPoints;
          circlePoints.Add(new Vector3(
-             rotationCenter.x + radius * Mathf.Cos(rad),
-             rotationCenter.y + radius * Mathf.Sin(rad),
+             rotationCenter.x + width * Mathf.Cos(rad),
+             rotationCenter.y + height * Mathf.Sin(rad),
              rotationCenter.z));
       }
 
