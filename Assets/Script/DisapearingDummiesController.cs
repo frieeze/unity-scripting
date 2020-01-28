@@ -6,7 +6,7 @@ public class DisapearingDummiesController : MonoBehaviour
 {
 
     private void OnCollisionEnter(Collision other) {
-        Destroy(gameObject);
+        
         
     }
     // Start is called before the first frame update
